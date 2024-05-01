@@ -28,11 +28,14 @@ export async function generateChatResponse(chatMessages) {
 }
 
 export async function getExistingTour({ city, country }) {
+  city = city.toLowerCase();
+  country = country.toLowerCase();
+
   return prisma.tour.findUnique({
     where: {
       city_country: {
-        city: city.toLowerCase(),
-        country: country.toLowerCase(),
+        city: city,
+        country: country,
       },
     },
   });
@@ -62,11 +65,12 @@ export async function generateTourResponse({ city, country }) {
 
     const tourData = JSON.parse(response.choices[0].message.content);
 
-    console.log(tourData);
-
     if (!tourData.tour) {
       return null;
     }
+
+    tourData.tour.city = tourData.tour.city.toLowerCase();
+    tourData.tour.country = tourData.tour.country.toLowerCase();
 
     return { tour: tourData.tour, tokens: response.usage.total_tokens };
   } catch (error) {
